@@ -11,9 +11,13 @@ http://download.springer.com/static/pdf/96/art%253A10.1007%252Fs11431-008-0055-3
 Equations 10, 11
 """
 
+import sys
+import py_compile
 import numpy as np
 
 import trimesh
+
+import json5
 
 
 def cycloidal_profile(count_pin,
@@ -167,28 +171,25 @@ def dual_cycloidal(eccentricity=.07,
 
     return drive
 
-
 if __name__ == '__main__':
+    sys.argv.pop(0)
 
-    radius_pin = .125
-    radius_pattern = 2.5
-    count_pin = 24
-    # set eccentricity as a fraction of pin radius
-    eccentricity = radius_pin * 0.56
-    input_pattern = radius_pattern - 1.25
+    for file in sys.argv:
+        with open(file, 'r', encoding='utf-8') as f:
+            d = json5.loads(f.read())
 
-    # get the Path2D of this profile
-    drive = dual_cycloidal(
-        eccentricity=eccentricity,
-        count_pin=count_pin,
-        radius_pin=radius_pin,
-        radius_pattern=radius_pattern,
-        input_count=3,
-        input_radius=.5625,
-        input_pattern=input_pattern)
+        # get the Path2D of this profile
+        drive = dual_cycloidal(
+            eccentricity=d['eccentricity'],
+            count_pin=d['count_pin'],
+            radius_pin=d['radius_pin'],
+            radius_pattern=d['radius_pattern'],
+            input_count=d['input_count'],
+            input_radius=d['input_radius'],
+            input_pattern=d['input_pattern'])
 
-    # export as a DXF
-    drive.export('cycloidal_drive.dxf')
+        # export as a DXF
+        drive.export(file + '.dxf')
 
-    # show the result
-    drive.show()
+        # show the result
+        drive.show()
